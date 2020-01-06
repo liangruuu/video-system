@@ -9,6 +9,7 @@ package cn.edu.zucc.vo;
 public class UserVideo {
   private boolean userLikeVideo;
   private boolean userCollectVideo;
+  private boolean userFollowed;
 
   public boolean isUserLikeVideo() {
     return userLikeVideo;
@@ -24,5 +25,13 @@ public class UserVideo {
 
   public void setUserCollectVideo(boolean userCollectVideo) {
     this.userCollectVideo = userCollectVideo;
+  }
+
+  public boolean isUserFollowed() {
+    return userFollowed;
+  }
+
+  public void setUserFollowed(boolean userFollowed) {
+    this.userFollowed = userFollowed;
   }
 }

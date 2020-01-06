@@ -3,6 +3,7 @@ package cn.edu.zucc.controller;
 import cn.edu.zucc.pojo.Bgm;
 import cn.edu.zucc.pojo.Videos;
 import cn.edu.zucc.service.BgmService;
+import cn.edu.zucc.service.UserService;
 import cn.edu.zucc.service.VideoService;
 import cn.edu.zucc.utils.*;
 import cn.edu.zucc.vo.UserVideo;
@@ -34,6 +35,9 @@ public class VideoController extends BasicController {
   private BgmService bgmService;
   @Autowired
   private VideoService videoService;
+  @Autowired
+  private UserService userService;
+
   private List<Object> returnList = null;
 
   @ApiOperation(value = "上传视频", notes = "上传视频的接口")
@@ -273,10 +277,12 @@ public class VideoController extends BasicController {
     }
     boolean userLikeVideo = videoService.isUserLikeVideo(userId, videoId);
     boolean userCollectVideo = videoService.isUserCollectVideo(userId, videoId);
+    boolean userIsFollowed = userService.queryIsFollow(createUserId, userId);
 
     UserVideo userVideo = new UserVideo();
     userVideo.setUserCollectVideo(userCollectVideo);
     userVideo.setUserLikeVideo(userLikeVideo);
+    userVideo.setUserFollowed(userIsFollowed);
 
     return MyJSONResult.create(userVideo);
   }

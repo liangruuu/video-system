@@ -28,7 +28,7 @@
     update users set collect_counts=collect_counts+1 where id=#{userId}
   </update>
 
-  <update id="removeSumCollectCounts" parameterType="String">
+  <update id="reduceSumCollectCounts" parameterType="String">
     update users set collect_counts=collect_counts-1 where id=#{userId}
   </update>
 

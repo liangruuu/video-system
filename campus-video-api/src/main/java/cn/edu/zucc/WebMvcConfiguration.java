@@ -33,6 +33,6 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
   public void addInterceptors(InterceptorRegistry registry) {
     // 对"/user/"下的所有路径都进行拦截
     registry.addInterceptor(myInterceptor()).addPathPatterns("/user/query")
-    .addPathPatterns("/video/upload").addPathPatterns("/bgm/**");
+    .addPathPatterns("/video/upload");
   }
 }
