@@ -1,7 +1,9 @@
 package cn.edu.zucc.service;
 
+import cn.edu.zucc.pojo.ReportVideos;
 import cn.edu.zucc.pojo.Videos;
 import cn.edu.zucc.utils.PageResult;
+import io.swagger.models.auth.In;
 
 import java.util.List;
 
@@ -94,4 +96,25 @@ public interface VideoService {
    * @return
    */
   public boolean isUserCollectVideo(String userId, String videoId);
+
+  /**
+   * 查看用户已收藏视频
+   * @param userId
+   * @param page
+   * @param pageSize
+   * @return
+   */
+  public PageResult queryMyCollectVideos(String userId, Integer page, Integer pageSize);
+
+  /**
+   * 增加视频浏览量
+   * @param videoId
+   */
+  public void addVideoBrowseCounts(String videoId);
+
+  /**
+   * 举报视频
+   * @param videoId
+   */
+  public void reportVideo(ReportVideos video);
 }

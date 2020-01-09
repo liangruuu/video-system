@@ -4,6 +4,9 @@ import cn.edu.zucc.mapper.UsersFansMapper;
 import cn.edu.zucc.mapper.UsersMapper;
 import cn.edu.zucc.pojo.Users;
 import cn.edu.zucc.pojo.UsersFans;
+import cn.edu.zucc.utils.PageResult;
+import cn.edu.zucc.vo.FollowerVO;
+import com.github.pagehelper.PageInfo;
 import org.n3r.idworker.Sid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,6 +14,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Example;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -20,6 +24,8 @@ public class UserServiceImpl implements UserService {
   UsersMapper usersMapper;
   @Autowired
   UsersFansMapper usersFansMapper;
+  @Autowired
+  UserService userService;
 
   private Sid sid = new Sid();
 
@@ -99,6 +105,7 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
+  @Transactional(propagation = Propagation.SUPPORTS)
   public boolean queryIsFollow(String userId, String fanId) {
     Example userExample = new Example(UsersFans.class);
     Example.Criteria criteria = userExample.createCriteria();
@@ -107,5 +114,38 @@ public class UserServiceImpl implements UserService {
 
     List<UsersFans> list = usersFansMapper.selectByExample(userExample);
     return list != null && list.size() > 0;
+  }
+
+  @Override
+  @Transactional(propagation = Propagation.SUPPORTS)
+  public PageResult showFollowUsers(String userId, Integer page, Integer pageSize) {
+    Example userExample = new Example(UsersFans.class);
+    Example.Criteria criteria = userExample.createCriteria();
+    criteria.andEqualTo("fanId", userId);
+
+    List<UsersFans> usersFansList = usersFansMapper.selectByExample(userExample);
+
+    List<FollowerVO> list = new ArrayList<>();
+    Users user;
+    FollowerVO followerVO;
+
+    for (UsersFans usersFans : usersFansList) {
+      user = userService.queryUserInfo(usersFans.getUserId());
+      followerVO = new FollowerVO();
+      followerVO.setFollowerId(user.getId());
+      followerVO.setFollowerName(user.getNickname());
+      followerVO.setAvatar(user.getAvatar());
+      list.add(followerVO);
+    }
+
+    PageInfo<FollowerVO> pageList = new PageInfo<>(list);
+
+    PageResult pageResult = new PageResult();
+    pageResult.setTotal(pageList.getPages());
+    pageResult.setRows(list);
+    pageResult.setRecords(pageList.getTotal());
+    pageResult.setPage(page);
+
+    return pageResult;
   }
 }

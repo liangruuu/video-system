@@ -5,6 +5,9 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import java.util.Date;
 
+/**
+ * @author liangruuu
+ */
 @Table(name = "report_videos")
 public class ReportVideos {
     @Id
@@ -16,6 +19,9 @@ public class ReportVideos {
     @Column(name = "report_video_id")
     private Integer reportVideoId;
 
+    /**
+     * 举报类型（字符串数组）
+     */
     private String title;
 
     private String content;

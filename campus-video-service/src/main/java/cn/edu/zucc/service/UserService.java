@@ -1,6 +1,10 @@
 package cn.edu.zucc.service;
 
 import cn.edu.zucc.pojo.Users;
+import cn.edu.zucc.pojo.UsersFans;
+import cn.edu.zucc.utils.PageResult;
+
+import java.util.List;
 
 public interface UserService {
 
@@ -63,4 +67,10 @@ public interface UserService {
    * @return
    */
   public boolean queryIsFollow(String userId, String fanId);
+
+  /**
+   * 查询用户关注用户列表
+   * @return
+   */
+  public PageResult showFollowUsers(String fanId, Integer page, Integer pageSize);
 }

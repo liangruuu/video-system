@@ -1,12 +1,15 @@
 package cn.edu.zucc.controller;
 
+import cn.edu.zucc.mapper.UsersMapper;
 import cn.edu.zucc.pojo.Users;
+import cn.edu.zucc.pojo.UsersFans;
 import cn.edu.zucc.service.UserService;
-import cn.edu.zucc.utils.BusinessException;
-import cn.edu.zucc.utils.CommonSuccess;
-import cn.edu.zucc.utils.EmBusinessError;
-import cn.edu.zucc.utils.MyJSONResult;
+import cn.edu.zucc.utils.*;
+import cn.edu.zucc.vo.FollowerVO;
 import cn.edu.zucc.vo.UsersVO;
+import cn.edu.zucc.vo.VideosVO;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -24,6 +27,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @Api(value = "用户业务操作的接口", tags = {"用户业务操作的controller"})
@@ -123,5 +128,28 @@ public class UserController {
     }
     userService.deleteUserFanRelation(userId, fanId);
     return MyJSONResult.create(new CommonSuccess("取消关注成功~"));
+  }
+
+  @ApiOperation(value = "获取关注列表", notes = "获取关注列表的接口")
+  @ApiImplicitParams({
+      @ApiImplicitParam(name = "userId", value = "用户id", required = true, dataType = "String", paramType = "query"),
+      @ApiImplicitParam(name = "page", value = "获取数据库分页之后第page页的视频列表数据", required = false, dataType = "Integer", paramType = "query"),
+      @ApiImplicitParam(name = "pageSize", value = "每页获取视频数", required = false, dataType = "Integer", paramType = "query")
+  })
+  @PostMapping(value = "/showfollowusers")
+  public MyJSONResult showFollowUsers(String userId, Integer page, Integer pageSize) throws Exception {
+    if (StringUtils.isBlank(userId)) {
+      throw new BusinessException(EmBusinessError.PARAMS_ERROR);
+    }
+    if (page == null) {
+      page = 1;
+    }
+    if (pageSize == null) {
+      pageSize = BasicController.PAGE_SIZE;
+    }
+
+    PageResult followsList = userService.showFollowUsers(userId, page, pageSize);
+
+    return MyJSONResult.create(followsList);
   }
 }

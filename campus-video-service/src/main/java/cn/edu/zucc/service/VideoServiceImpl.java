@@ -1,10 +1,7 @@
 package cn.edu.zucc.service;
 
 import cn.edu.zucc.mapper.*;
-import cn.edu.zucc.pojo.SearchRecords;
-import cn.edu.zucc.pojo.UsersCollectVideos;
-import cn.edu.zucc.pojo.UsersLikeVideos;
-import cn.edu.zucc.pojo.Videos;
+import cn.edu.zucc.pojo.*;
 import cn.edu.zucc.utils.PageResult;
 import cn.edu.zucc.vo.VideosVO;
 import com.github.pagehelper.PageHelper;
@@ -16,6 +13,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Example;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -36,6 +34,8 @@ public class VideoServiceImpl implements VideoService {
   private UsersCollectVideosMapper usersCollectVideosMapper;
   @Autowired
   private UsersMapper usersMapper;
+  @Autowired
+  private ReportVideosMapper reportVideosMapper;
 
   private Sid sid = new Sid();
 
@@ -125,6 +125,7 @@ public class VideoServiceImpl implements VideoService {
     usersMapper.reduceSumLikeCounts(createUserId);
   }
 
+  @Transactional(propagation = Propagation.REQUIRED)
   @Override
   public void userCollectVideo(String userId, String videoId, String createUserId) {
     // 1. 保存用户和视频的收藏关联表
@@ -142,6 +143,7 @@ public class VideoServiceImpl implements VideoService {
     usersMapper.addSumCollectCounts(createUserId);
   }
 
+  @Transactional(propagation = Propagation.REQUIRED)
   @Override
   public void userUnCollectVideo(String userId, String videoId, String createUserId) {
     // 1. 删除用户和视频的收藏关联表
@@ -150,7 +152,6 @@ public class VideoServiceImpl implements VideoService {
     criteria.andEqualTo("userId", userId);
     criteria.andEqualTo("videoId", videoId);
     usersCollectVideosMapper.deleteByExample(example);
-
     // 2. 视频点赞数-1
     myVideosMapper.reduceVideoCollectCount(videoId);
 
@@ -158,6 +159,7 @@ public class VideoServiceImpl implements VideoService {
     usersMapper.reduceSumCollectCounts(createUserId);
   }
 
+  @Transactional(propagation = Propagation.REQUIRED)
   @Override
   public boolean isUserLikeVideo(String userId, String videoId) {
     Example example = new Example(UsersLikeVideos.class);
@@ -169,6 +171,7 @@ public class VideoServiceImpl implements VideoService {
     return list != null && list.size() > 0;
   }
 
+  @Transactional(propagation = Propagation.REQUIRED)
   @Override
   public boolean isUserCollectVideo(String userId, String videoId) {
     Example example = new Example(UsersCollectVideos.class);
@@ -178,5 +181,36 @@ public class VideoServiceImpl implements VideoService {
 
     List<UsersCollectVideos> list = usersCollectVideosMapper.selectByExample(example);
     return list != null && list.size() > 0;
+  }
+
+  @Transactional(propagation = Propagation.REQUIRED)
+  @Override
+  public PageResult queryMyCollectVideos(String userId, Integer page, Integer pageSize) {
+    PageHelper.startPage(page, pageSize);
+    List<VideosVO> list = myVideosMapper.queryCollectVideos(userId);
+    PageInfo<VideosVO> pageList = new PageInfo<>(list);
+
+    PageResult pageResult = new PageResult();
+    pageResult.setTotal(pageList.getPages());
+    pageResult.setRows(list);
+    pageResult.setRecords(pageList.getTotal());
+    pageResult.setPage(page);
+
+    return pageResult;
+  }
+
+  @Transactional(propagation = Propagation.REQUIRED)
+  @Override
+  public void addVideoBrowseCounts(String videoId) {
+    myVideosMapper.addVideoBrowseCounts(videoId);
+  }
+
+  @Override
+  public void reportVideo(ReportVideos reportVideo) {
+    String rvId = sid.nextShort();
+    reportVideo.setId(rvId);
+    reportVideo.setCreateTime(new Date());
+
+    reportVideosMapper.insert(reportVideo);
   }
 }

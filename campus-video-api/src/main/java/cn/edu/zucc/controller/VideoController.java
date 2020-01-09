@@ -1,6 +1,7 @@
 package cn.edu.zucc.controller;
 
 import cn.edu.zucc.pojo.Bgm;
+import cn.edu.zucc.pojo.ReportVideos;
 import cn.edu.zucc.pojo.Videos;
 import cn.edu.zucc.service.BgmService;
 import cn.edu.zucc.service.UserService;
@@ -8,7 +9,6 @@ import cn.edu.zucc.service.VideoService;
 import cn.edu.zucc.utils.*;
 import cn.edu.zucc.vo.UserVideo;
 import io.swagger.annotations.*;
-import javafx.scene.chart.ValueAxis;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -198,7 +198,7 @@ public class VideoController extends BasicController {
 
   @ApiOperation(value = "获取视频列表", notes = "获取视频列表的接口")
   @ApiImplicitParams({
-      @ApiImplicitParam(name = "isSaveRecord", value = "是否保存热搜词(1表示要保存,  0表示不保存或者为空)", required = true, dataType = "boolean", paramType = "query"),
+      @ApiImplicitParam(name = "isSaveRecord", value = "是否保存热搜词(1表示要保存, 0表示不保存或者为空)", required = true, dataType = "boolean", paramType = "query"),
       @ApiImplicitParam(name = "page", value = "获取数据库分页之后第page页的视频列表数据", required = true, dataType = "Integer", paramType = "query")
   })
   @PostMapping(value = "/showvideolist")
@@ -285,5 +285,40 @@ public class VideoController extends BasicController {
     userVideo.setUserFollowed(userIsFollowed);
 
     return MyJSONResult.create(userVideo);
+  }
+
+  @ApiOperation(value = "获取收藏视频列表", notes = "获取收藏视频列表的接口")
+  @ApiImplicitParams({
+      @ApiImplicitParam(name = "userId", value = "用户Id", required = true, dataType = "String", paramType = "query"),
+      @ApiImplicitParam(name = "page", value = "获取数据库分页之后第page页的视频列表数据", required = false, dataType = "Integer", paramType = "query"),
+      @ApiImplicitParam(name = "pageSize", value = "每页获取视频数", required = false, dataType = "Integer", paramType = "query")
+  })
+  @PostMapping(value = "/collectvideolist")
+  public MyJSONResult collectVideoList(String userId, Integer page, Integer pageSize) throws BusinessException {
+    if (StringUtils.isBlank(userId)) {
+      throw new BusinessException(EmBusinessError.PARAMS_ERROR);
+    }
+    if (page == null) {
+      page = 1;
+    }
+    if (pageSize == null) {
+      pageSize = BasicController.PAGE_SIZE;
+    }
+    PageResult videoList = videoService.queryMyCollectVideos(userId, page, pageSize);
+    return MyJSONResult.create(videoList);
+  }
+
+  @ApiOperation(value = "获取收藏视频列表", notes = "获取收藏视频列表的接口")
+  @ApiImplicitParam(name = "videoId", value = "视频Id", required = true, dataType = "String", paramType = "query")
+  @PostMapping(value = "/addbrowsecounts")
+  public MyJSONResult addBrowseCounts(String videoId){
+    videoService.addVideoBrowseCounts(videoId);
+    return MyJSONResult.create(new CommonSuccess("视频播放量+1"));
+  }
+
+  @PostMapping(value = "/reportvideo")
+  public MyJSONResult reportVideo(@RequestBody ReportVideos reportVideo){
+    videoService.reportVideo(reportVideo);
+    return MyJSONResult.create(new CommonSuccess("举报成功"));
   }
 }

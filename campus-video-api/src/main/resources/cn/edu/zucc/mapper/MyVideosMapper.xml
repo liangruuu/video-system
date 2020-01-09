@@ -40,6 +40,15 @@
     order by v.create_time desc
   </select>
 
+  <select id="queryCollectVideos" resultMap="BaseResultMap" parameterType="String">
+    select v.*, u.avatar as avatar, u.nickname as nickname from videos v
+    left join users u on v.user_id = u.id
+    where
+      v.id in (select ucv.video_id from users_collect_videos ucv where ucv.user_id = #{userId})
+      and v.status = 1
+      order by v.create_time desc
+  </select>
+
   <update id="addVideoLikeCount" parameterType="String">
     update videos set like_counts=like_counts+1 where id=#{videoId}
   </update>
@@ -54,5 +63,9 @@
 
   <update id="reduceVideoCollectCount" parameterType="String">
     update videos set collect_counts=collect_counts-1 where id=#{videoId}
+  </update>
+
+  <update id="addVideoBrowseCounts" parameterType="String">
+    update videos set browse_counts=browse_counts+1 where id=#{videoId}
   </update>
 </mapper>
