@@ -1,5 +1,6 @@
 package cn.edu.zucc.service;
 
+import cn.edu.zucc.pojo.Comments;
 import cn.edu.zucc.pojo.ReportVideos;
 import cn.edu.zucc.pojo.Videos;
 import cn.edu.zucc.utils.PageResult;
@@ -114,7 +115,22 @@ public interface VideoService {
 
   /**
    * 举报视频
-   * @param videoId
+   * @param
    */
   public void reportVideo(ReportVideos video);
+
+  /**
+   * 保存评论
+   * @param comment
+   */
+  public void saveComment(Comments comment);
+
+
+  /**
+   * 获取评论分页
+   * @param videoId
+   * @return
+   */
+  public PageResult getCommentList(String videoId, Integer page, Integer pageSize);
+
 }

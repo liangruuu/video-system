@@ -1,6 +1,7 @@
 package cn.edu.zucc.controller;
 
 import cn.edu.zucc.pojo.Bgm;
+import cn.edu.zucc.pojo.Comments;
 import cn.edu.zucc.pojo.ReportVideos;
 import cn.edu.zucc.pojo.Videos;
 import cn.edu.zucc.service.BgmService;
@@ -12,9 +13,11 @@ import io.swagger.annotations.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.support.PagedListHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.xml.stream.events.Comment;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -308,17 +311,47 @@ public class VideoController extends BasicController {
     return MyJSONResult.create(videoList);
   }
 
-  @ApiOperation(value = "获取收藏视频列表", notes = "获取收藏视频列表的接口")
+  @ApiOperation(value = "增加播放量", notes = "增加播放量的接口")
   @ApiImplicitParam(name = "videoId", value = "视频Id", required = true, dataType = "String", paramType = "query")
   @PostMapping(value = "/addbrowsecounts")
-  public MyJSONResult addBrowseCounts(String videoId){
+  public MyJSONResult addBrowseCounts(String videoId) {
     videoService.addVideoBrowseCounts(videoId);
     return MyJSONResult.create(new CommonSuccess("视频播放量+1"));
   }
 
+  @ApiOperation(value = "举报视频", notes = "举报视频的接口")
   @PostMapping(value = "/reportvideo")
-  public MyJSONResult reportVideo(@RequestBody ReportVideos reportVideo){
+  public MyJSONResult reportVideo(@RequestBody ReportVideos reportVideo) {
     videoService.reportVideo(reportVideo);
     return MyJSONResult.create(new CommonSuccess("举报成功"));
+  }
+
+  @ApiOperation(value = "发表评论", notes = "发表评论的接口")
+  @PostMapping(value = "/savecomment")
+  public MyJSONResult saveComment(@RequestBody Comments comment) {
+    videoService.saveComment(comment);
+    return MyJSONResult.create(new CommonSuccess("保存评论成功"));
+  }
+
+  @ApiOperation(value = "获取评论列表", notes = "获取评论列表的接口")
+  @ApiImplicitParams({
+      @ApiImplicitParam(name = "videoId", value = "视频Id", required = true, dataType = "String", paramType = "query"),
+      @ApiImplicitParam(name = "page", value = "获取数据库分页之后第page页的视频列表数据", required = false, dataType = "Integer", paramType = "query"),
+      @ApiImplicitParam(name = "pageSize", value = "每页获取视频数", required = false, dataType = "Integer", paramType = "query")
+  })
+  @PostMapping(value = "/getcommentlist")
+  public MyJSONResult getCommentList(String videoId, Integer page, Integer pageSize) throws BusinessException {
+    if (StringUtils.isBlank(videoId)) {
+      throw new BusinessException(EmBusinessError.PARAMS_ERROR);
+    }
+    if (page == null) {
+      page = 1;
+    }
+    if (pageSize == null) {
+      pageSize = 10;
+    }
+    PageResult list = videoService.getCommentList(videoId, page, pageSize);
+
+    return MyJSONResult.create(list);
   }
 }

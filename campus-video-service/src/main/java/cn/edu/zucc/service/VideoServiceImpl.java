@@ -3,6 +3,8 @@ package cn.edu.zucc.service;
 import cn.edu.zucc.mapper.*;
 import cn.edu.zucc.pojo.*;
 import cn.edu.zucc.utils.PageResult;
+import cn.edu.zucc.utils.TimeAgoUtils;
+import cn.edu.zucc.vo.CommentsVO;
 import cn.edu.zucc.vo.VideosVO;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -13,6 +15,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Example;
 
+import javax.naming.ldap.PagedResultsControl;
 import java.util.Date;
 import java.util.List;
 
@@ -36,6 +39,10 @@ public class VideoServiceImpl implements VideoService {
   private UsersMapper usersMapper;
   @Autowired
   private ReportVideosMapper reportVideosMapper;
+  @Autowired
+  private CommentsMapper commentsMapper;
+  @Autowired
+  private MyCommentsMapper myCommentsMapper;
 
   private Sid sid = new Sid();
 
@@ -212,5 +219,37 @@ public class VideoServiceImpl implements VideoService {
     reportVideo.setCreateTime(new Date());
 
     reportVideosMapper.insert(reportVideo);
+  }
+
+  @Transactional(propagation = Propagation.REQUIRED)
+  @Override
+  public void saveComment(Comments comment) {
+    String cid = sid.nextShort();
+    comment.setId(cid);
+    comment.setCreateTime(new Date());
+
+    commentsMapper.insert(comment);
+  }
+
+  @Transactional(propagation = Propagation.SUPPORTS)
+  @Override
+  public PageResult getCommentList(String videoId, Integer page, Integer pageSize) {
+    PageHelper.startPage(page, pageSize);
+
+    List<CommentsVO> list = myCommentsMapper.queryComment(videoId);
+
+    for (CommentsVO c : list) {
+      String timeAgoStr = TimeAgoUtils.format(c.getCreateTime());
+      c.setTimeAgoStr(timeAgoStr);
+    }
+    PageInfo<CommentsVO> pageList = new PageInfo<>(list);
+
+    PageResult cid = new PageResult();
+    cid.setTotal(pageList.getPages());
+    cid.setPage(page);
+    cid.setRecords(pageList.getTotal());
+    cid.setRows(list);
+
+    return cid;
   }
 }

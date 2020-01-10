@@ -14,10 +14,10 @@ public class ReportVideos {
     private String id;
 
     @Column(name = "report_user_id")
-    private Integer reportUserId;
+    private String reportUserId;
 
     @Column(name = "report_video_id")
-    private Integer reportVideoId;
+    private String reportVideoId;
 
     /**
      * 举报类型（字符串数组）
@@ -27,7 +27,7 @@ public class ReportVideos {
     private String content;
 
     @Column(name = "user_id")
-    private Integer userId;
+    private String userId;
 
     @Column(name = "create_time")
     private Date createTime;
@@ -49,28 +49,28 @@ public class ReportVideos {
     /**
      * @return report_user_id
      */
-    public Integer getReportUserId() {
+    public String getReportUserId() {
         return reportUserId;
     }
 
     /**
      * @param reportUserId
      */
-    public void setReportUserId(Integer reportUserId) {
+    public void setReportUserId(String reportUserId) {
         this.reportUserId = reportUserId;
     }
 
     /**
      * @return report_video_id
      */
-    public Integer getReportVideoId() {
+    public String getReportVideoId() {
         return reportVideoId;
     }
 
     /**
      * @param reportVideoId
      */
-    public void setReportVideoId(Integer reportVideoId) {
+    public void setReportVideoId(String reportVideoId) {
         this.reportVideoId = reportVideoId;
     }
 
@@ -105,14 +105,14 @@ public class ReportVideos {
     /**
      * @return user_id
      */
-    public Integer getUserId() {
+    public String getUserId() {
         return userId;
     }
 
     /**
      * @param userId
      */
-    public void setUserId(Integer userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
     }
 

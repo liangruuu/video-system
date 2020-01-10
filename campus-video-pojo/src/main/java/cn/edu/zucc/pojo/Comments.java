@@ -4,88 +4,113 @@ import javax.persistence.Column;
 import javax.persistence.Id;
 import java.util.Date;
 
+/**
+ * @author liangruuu
+ */
 public class Comments {
-    @Id
-    private String id;
+  @Id
+  private String id;
 
-    @Column(name = "video_id")
-    private String videoId;
+  @Column(name = "father_comment_id")
+  private String fatherCommentId;
 
-    @Column(name = "user_id")
-    private String userId;
+  @Column(name = "video_id")
+  private String videoId;
 
-    @Column(name = "create_time")
-    private Date createTime;
+  @Column(name = "user_id")
+  private String userId;
 
-    private String comment;
+  @Column(name = "to_user_id")
+  private String toUserId;
 
-    /**
-     * @return id
-     */
-    public String getId() {
-        return id;
-    }
+  @Column(name = "create_time")
+  private Date createTime;
 
-    /**
-     * @param id
-     */
-    public void setId(String id) {
-        this.id = id;
-    }
+  private String comment;
 
-    /**
-     * @return video_id
-     */
-    public String getVideoId() {
-        return videoId;
-    }
+  /**
+   * @return id
+   */
+  public String getId() {
+    return id;
+  }
 
-    /**
-     * @param videoId
-     */
-    public void setVideoId(String videoId) {
-        this.videoId = videoId;
-    }
+  /**
+   * @param id
+   */
+  public void setId(String id) {
+    this.id = id;
+  }
 
-    /**
-     * @return user_id
-     */
-    public String getUserId() {
-        return userId;
-    }
+  /**
+   * @return video_id
+   */
+  public String getVideoId() {
+    return videoId;
+  }
 
-    /**
-     * @param userId
-     */
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
+  /**
+   * @param videoId
+   */
+  public void setVideoId(String videoId) {
+    this.videoId = videoId;
+  }
 
-    /**
-     * @return create_time
-     */
-    public Date getCreateTime() {
-        return createTime;
-    }
+  /**
+   * @return user_id
+   */
+  public String getUserId() {
+    return userId;
+  }
 
-    /**
-     * @param createTime
-     */
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
-    }
+  /**
+   * @param userId
+   */
+  public void setUserId(String userId) {
+    this.userId = userId;
+  }
 
-    /**
-     * @return comment
-     */
-    public String getComment() {
-        return comment;
-    }
+  /**
+   * @return create_time
+   */
+  public Date getCreateTime() {
+    return createTime;
+  }
 
-    /**
-     * @param comment
-     */
-    public void setComment(String comment) {
-        this.comment = comment;
-    }
+  /**
+   * @param createTime
+   */
+  public void setCreateTime(Date createTime) {
+    this.createTime = createTime;
+  }
+
+  /**
+   * @return comment
+   */
+  public String getComment() {
+    return comment;
+  }
+
+  /**
+   * @param comment
+   */
+  public void setComment(String comment) {
+    this.comment = comment;
+  }
+
+  public String getFatherCommentId() {
+    return fatherCommentId;
+  }
+
+  public void setFatherCommentId(String fatherCommentId) {
+    this.fatherCommentId = fatherCommentId;
+  }
+
+  public String getToUserId() {
+    return toUserId;
+  }
+
+  public void setToUserId(String toUserId) {
+    this.toUserId = toUserId;
+  }
 }
