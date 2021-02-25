@@ -4,6 +4,7 @@ import cn.edu.zucc.mapper.UsersFansMapper;
 import cn.edu.zucc.mapper.UsersMapper;
 import cn.edu.zucc.pojo.Users;
 import cn.edu.zucc.pojo.UsersFans;
+import cn.edu.zucc.utils.IdUtils;
 import cn.edu.zucc.utils.PageResult;
 import cn.edu.zucc.vo.FollowerVO;
 import com.github.pagehelper.PageInfo;
@@ -34,7 +35,6 @@ public class UserServiceImpl implements UserService {
   public boolean queryUsernameIsExist(String userName) {
     Users user = new Users();
     user.setUsername(userName);
-
     Users result = usersMapper.selectOne(user);
     return result != null;
   }
@@ -42,7 +42,8 @@ public class UserServiceImpl implements UserService {
   @Override
   @Transactional(propagation = Propagation.REQUIRED)
   public void saveUser(Users user) {
-    String userId = sid.nextShort();
+//    String userId = sid.nextShort();
+    String userId = IdUtils.createUid();
     user.setId(userId);
     usersMapper.insert(user);
   }
@@ -80,7 +81,8 @@ public class UserServiceImpl implements UserService {
   @Override
   @Transactional(propagation = Propagation.REQUIRED)
   public void saveUserFanRelation(String userId, String fanId) {
-    String relId = sid.nextShort();
+//    String relId = sid.nextShort();
+    String relId = IdUtils.createUid();
     UsersFans usersFan = new UsersFans();
     usersFan.setId(relId);
     usersFan.setUserId(userId);
@@ -147,5 +149,10 @@ public class UserServiceImpl implements UserService {
     pageResult.setPage(page);
 
     return pageResult;
+  }
+
+  @Override
+  public int getFansNumber(String userId) {
+    return usersMapper.getFansNumber(userId);
   }
 }

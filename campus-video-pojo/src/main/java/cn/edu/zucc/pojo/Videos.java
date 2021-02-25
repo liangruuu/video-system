@@ -57,6 +57,15 @@ public class Videos {
   @Column(name = "create_time")
   private Date createTime;
 
+  @Column(name = "update_time")
+  private Date updateTime;
+
+  @Column(name = "category_id")
+  private Integer categoryId;
+
+  @Column(name = "tags")
+  private String tags;
+
   /**
    * @return id
    */
@@ -271,5 +280,29 @@ public class Videos {
    */
   public void setCreateTime(Date createTime) {
     this.createTime = createTime;
+  }
+
+  public Integer getCategoryId() {
+    return categoryId;
+  }
+
+  public void setCategoryId(Integer categoryId) {
+    this.categoryId = categoryId;
+  }
+
+  public String getTags() {
+    return tags;
+  }
+
+  public void setTags(String tags) {
+    this.tags = tags;
+  }
+
+  public Date getUpdateTime() {
+    return updateTime;
+  }
+
+  public void setUpdateTime(Date updateTime) {
+    this.updateTime = updateTime;
   }
 }

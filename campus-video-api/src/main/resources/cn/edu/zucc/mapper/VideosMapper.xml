@@ -20,7 +20,9 @@
     <result column="collect_counts" property="collectCounts" jdbcType="BIGINT"/>
     <result column="status" property="status" jdbcType="INTEGER"/>
     <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
-
+    <result column="update_time" property="createTime" jdbcType="TIMESTAMP"/>
+    <result column="category_id" property="categoryId" jdbcType="INTEGER"/>
+    <result column="tags" property="tags" jdbcType="VARCHAR"/>
   </resultMap>
 
 </mapper>

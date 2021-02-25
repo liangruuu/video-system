@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.edu.zucc.mapper.RatingMapper">
+  <resultMap id="BaseResultMap" type="cn.edu.zucc.pojo.Rating">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" property="id" jdbcType="VARCHAR"/>
+    <result column="user_id" property="userId" jdbcType="VARCHAR"/>
+    <result column="video_id" property="videoId" jdbcType="VARCHAR"/>
+    <result column="rating" property="rating" jdbcType="INTEGER"/>
+  </resultMap>
+  <insert id="saveOrUpdaterRating" keyProperty="id" useGeneratedKeys="true">
+    insert into rating (user_id, video_id, rating)
+    values (#{userId}, #{videoId}, #{rating})
+    on duplicate key update rating = #{rating}
+  </insert>
+
+  <select id="getRateValue" parameterType="String" resultType="cn.edu.zucc.pojo.Rating">
+    select rating
+    from rating
+    where user_id = #{userId}
+      and video_id = #{videoId};
+  </select>
+</mapper>

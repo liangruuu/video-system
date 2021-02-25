@@ -10,17 +10,49 @@ import java.util.List;
 public class VideoUtils {
 
   private String ffmpeg;
+  private final String TEMP_FILE_PATH = "E:/code/GraduationProject/resources/temp.mp4";
 
   public VideoUtils(String ffmpeg) {
     this.ffmpeg = ffmpeg;
   }
 
-  public void convert(String videoInputPath, String mp3inputPath, double seconds, String outputPath) throws Exception {
-    // ffmpeg -i input.mp4 output.avi
+  // 先清除音轨
+  public void clearTrack(String videoInputPath) throws IOException {
     List<String> command = new ArrayList<>();
     command.add(ffmpeg);
+    command.add("-y");
     command.add("-i");
     command.add(videoInputPath);
+    command.add("-c:v");
+    command.add("copy");
+    command.add("-an");
+    command.add(TEMP_FILE_PATH);
+
+    ProcessBuilder builder = new ProcessBuilder(command);
+    Process process = builder.start();
+
+    InputStream errorStream = process.getErrorStream();
+    InputStreamReader inputStream = new InputStreamReader(errorStream);
+    BufferedReader reader = new BufferedReader(inputStream);
+
+    String line = "";
+    while ((line = reader.readLine()) != null) {
+    }
+    reader.close();
+    errorStream.close();
+    inputStream.close();
+  }
+
+  public void convert(String videoInputPath, String mp3inputPath, double seconds, String outputPath) throws Exception {
+    // ffmpeg -i input.mp4 output.avi
+    // 先清除音轨
+    this.clearTrack(videoInputPath);
+
+    List<String> command = new ArrayList<>();
+    command.add(ffmpeg);
+    // 再合并音频和视频
+    command.add("-i");
+    command.add(TEMP_FILE_PATH);
 
     command.add("-i");
     command.add(mp3inputPath);
@@ -81,7 +113,7 @@ public class VideoUtils {
   public static void main(String[] args) {
 //    VideoUtils videoUtils = new VideoUtils("E:/ffmpeg/ffmpeg/bin/ffmpeg.exe");
 //    try {
-//      videoUtils.convert("E:/ffmpeg/ffmpeg/bin/test.mp4", "E:/ffmpeg/ffmpeg/bin/Sincerely.mp3", 4, "E:/ffmpeg/ffmpeg/bin/new.avi");
+//      videoUtils.convert("E:/ffmpeg/ffmpeg/bin/test.mp4", "E:/ffmpeg/ffmpeg/bin/You're Gonna Go Far, Kid (Clean Album Version).mp3", 4, "E:/ffmpeg/ffmpeg/bin/new.avi");
 //      videoUtils.fetchCover("E:/ffmpeg/ffmpeg/bin/test.mp4", "E:/ffmpeg/ffmpeg/bin/new.jpg");
 //    } catch (Exception e) {
 //      e.printStackTrace();

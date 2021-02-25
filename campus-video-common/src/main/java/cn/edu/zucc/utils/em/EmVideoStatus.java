@@ -1,4 +1,4 @@
-package cn.edu.zucc.utils;
+package cn.edu.zucc.utils.em;
 
 /**
  * @author liangruuu

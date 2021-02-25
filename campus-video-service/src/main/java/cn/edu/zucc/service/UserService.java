@@ -73,4 +73,11 @@ public interface UserService {
    * @return
    */
   public PageResult showFollowUsers(String fanId, Integer page, Integer pageSize);
+
+  /**
+   * 获取关注人数
+   * @param userId
+   * @return
+   */
+  public int getFansNumber(String userId);
 }

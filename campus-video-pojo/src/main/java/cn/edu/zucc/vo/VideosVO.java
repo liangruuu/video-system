@@ -39,8 +39,12 @@ public class VideosVO {
 
   private Date createTime;
 
+  private Date updateTime;
+
   private String avatar;
   private String nickname;
+
+  private String tags;
 
   public String getAvatar() {
     return avatar;
@@ -272,5 +276,21 @@ public class VideosVO {
    */
   public void setCreateTime(Date createTime) {
     this.createTime = createTime;
+  }
+
+  public Date getUpdateTime() {
+    return updateTime;
+  }
+
+  public void setUpdateTime(Date updateTime) {
+    this.updateTime = updateTime;
+  }
+
+  public String getTags() {
+    return tags;
+  }
+
+  public void setTags(String tags) {
+    this.tags = tags;
   }
 }

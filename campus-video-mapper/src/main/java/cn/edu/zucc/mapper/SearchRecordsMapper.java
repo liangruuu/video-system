@@ -6,5 +6,5 @@ import cn.edu.zucc.utils.MyMapper;
 import java.util.List;
 
 public interface SearchRecordsMapper extends MyMapper<SearchRecords> {
-  public List<String> getHotRecords();
+  List<String> getHotRecords();
 }

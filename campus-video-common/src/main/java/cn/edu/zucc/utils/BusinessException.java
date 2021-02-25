@@ -1,6 +1,8 @@
 package cn.edu.zucc.utils;
 
 
+import cn.edu.zucc.utils.em.EmBusinessError;
+
 public class BusinessException extends Exception {
   private CommonErr commonErr;
 

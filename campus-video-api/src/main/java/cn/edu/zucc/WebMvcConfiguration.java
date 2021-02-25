@@ -7,6 +7,9 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+/**
+ * @author liangruuu
+ */
 @Configuration
 public class WebMvcConfiguration implements WebMvcConfigurer {
 
@@ -22,17 +25,33 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
         .addResourceLocations("file:E:/code/GraduationProject/resources/");
   }
 
-  // 以Bean的形式注册Intercepetor
+  /**
+   * 初始化zookeeper客户端
+   *
+   * @return
+   */
+  @Bean(initMethod = "init")
+  public ZKCuratorClient zkCuratorClient() {
+    return new ZKCuratorClient();
+  }
+
+  /**
+   * 以Bean的形式注册Intercepetor
+   *
+   * @return
+   */
   @Bean
   public MyInterceptor myInterceptor() {
     return new MyInterceptor();
   }
 
-  // 把拦截器加载到拦截中心中
+  /**
+   * 以Bean的形式注册Intercepetor
+   *
+   * @param registry
+   */
   @Override
   public void addInterceptors(InterceptorRegistry registry) {
-    // 对"/user/"下的所有路径都进行拦截
-    registry.addInterceptor(myInterceptor()).addPathPatterns("/user/query")
-        .addPathPatterns("/video/upload");
+    registry.addInterceptor(myInterceptor()).addPathPatterns("/video/upload");
   }
 }

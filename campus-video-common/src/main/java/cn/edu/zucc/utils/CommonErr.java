@@ -1,5 +1,7 @@
 package cn.edu.zucc.utils;
 
+import cn.edu.zucc.utils.em.EmBusinessError;
+
 public class CommonErr {
 
   // 错误码

@@ -1,6 +1,8 @@
 package cn.edu.zucc.intercepetor;
 
+import cn.edu.zucc.utils.MyJSONResult;
 import cn.edu.zucc.utils.RedisOperator;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -8,6 +10,8 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 /**
  * @author liangruuu
@@ -36,19 +40,42 @@ public class MyInterceptor implements HandlerInterceptor {
      */
     String userId = request.getHeader("userId");
     String userToken = request.getHeader("userToken");
-    if (StringUtils.isNotBlank(userId) && StringUtils.isNotBlank(userToken)) {
-      System.out.println("请求拦截...");
-      String uniqueToken = redis.get(USER_REDIS_SESSION + ":" + userId);
-      if (StringUtils.isBlank(uniqueToken) && StringUtils.isEmpty(uniqueToken)) {
-        System.out.println("Token过期,请先登录");
-      } else {
-        if (!uniqueToken.equals(userToken)) {
-          System.out.println("账号在别的手机上登录...");
-          return false;
+//    if (StringUtils.isNotBlank(userId) && StringUtils.isNotBlank(userToken)) {
+//      System.out.println("请求拦截...");
+//      String uniqueToken = redis.get(USER_REDIS_SESSION + ":" + userId);
+//      if (StringUtils.isBlank(uniqueToken) && StringUtils.isEmpty(uniqueToken)) {
+//        System.out.println("Token过期,请先登录");
+//      } else {
+//        if (!uniqueToken.equals(userToken)) {
+//          System.out.println("账号在别的手机上登录...");
+//          return false;
+//        }
+//      }
+//    } else {
+//      System.out.println("请先登录");
+//      return false;
+//    }
+
+
+    // 只查看是否有userId
+    if (StringUtils.isBlank(userId)) {
+      System.out.println("请先登录");
+      MyJSONResult resultObj = MyJSONResult.create("请先登录", "failed");
+      ObjectMapper mapper = new ObjectMapper();
+      String resultStr = mapper.writeValueAsString(resultObj);
+
+      PrintWriter writer = null;
+      response.setCharacterEncoding("UTF-8");
+      try {
+        writer = response.getWriter();
+        writer.print(resultStr);
+      } catch (IOException e) {
+        e.printStackTrace();
+      } finally {
+        if (writer != null) {
+          writer.close();
         }
       }
-    } else {
-      System.out.println("请先登录");
       return false;
     }
     return true;

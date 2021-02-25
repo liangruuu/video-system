@@ -28,74 +28,12 @@ public class Comments {
 
   private String comment;
 
-  /**
-   * @return id
-   */
   public String getId() {
     return id;
   }
 
-  /**
-   * @param id
-   */
   public void setId(String id) {
     this.id = id;
-  }
-
-  /**
-   * @return video_id
-   */
-  public String getVideoId() {
-    return videoId;
-  }
-
-  /**
-   * @param videoId
-   */
-  public void setVideoId(String videoId) {
-    this.videoId = videoId;
-  }
-
-  /**
-   * @return user_id
-   */
-  public String getUserId() {
-    return userId;
-  }
-
-  /**
-   * @param userId
-   */
-  public void setUserId(String userId) {
-    this.userId = userId;
-  }
-
-  /**
-   * @return create_time
-   */
-  public Date getCreateTime() {
-    return createTime;
-  }
-
-  /**
-   * @param createTime
-   */
-  public void setCreateTime(Date createTime) {
-    this.createTime = createTime;
-  }
-
-  /**
-   * @return comment
-   */
-  public String getComment() {
-    return comment;
-  }
-
-  /**
-   * @param comment
-   */
-  public void setComment(String comment) {
-    this.comment = comment;
   }
 
   public String getFatherCommentId() {
@@ -106,11 +44,43 @@ public class Comments {
     this.fatherCommentId = fatherCommentId;
   }
 
+  public String getVideoId() {
+    return videoId;
+  }
+
+  public void setVideoId(String videoId) {
+    this.videoId = videoId;
+  }
+
+  public String getUserId() {
+    return userId;
+  }
+
+  public void setUserId(String userId) {
+    this.userId = userId;
+  }
+
   public String getToUserId() {
     return toUserId;
   }
 
   public void setToUserId(String toUserId) {
     this.toUserId = toUserId;
+  }
+
+  public Date getCreateTime() {
+    return createTime;
+  }
+
+  public void setCreateTime(Date createTime) {
+    this.createTime = createTime;
+  }
+
+  public String getComment() {
+    return comment;
+  }
+
+  public void setComment(String comment) {
+    this.comment = comment;
   }
 }

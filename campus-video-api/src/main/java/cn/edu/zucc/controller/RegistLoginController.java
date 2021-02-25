@@ -2,6 +2,7 @@ package cn.edu.zucc.controller;
 
 import cn.edu.zucc.service.UserService;
 import cn.edu.zucc.pojo.Users;
+import cn.edu.zucc.utils.em.EmBusinessError;
 import cn.edu.zucc.vo.UsersVO;
 import cn.edu.zucc.utils.*;
 import io.swagger.annotations.Api;
@@ -11,6 +12,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.UUID;
 
 /**
@@ -26,7 +28,7 @@ public class RegistLoginController extends BasicController {
 
   private UsersVO setUsersRedisSession(Users user) {
     String uniqueToken = UUID.randomUUID().toString();
-    redis.set(USER_REDIS_SESSION + ":" + user.getId(), uniqueToken, 1000 * 60 * 30);
+//    redis.set(USER_REDIS_SESSION + ":" + user.getId(), uniqueToken, 1000 * 60 * 30);
     UsersVO usersVO = new UsersVO();
     BeanUtils.copyProperties(user, usersVO);
     usersVO.setUserToken(uniqueToken);
@@ -45,12 +47,12 @@ public class RegistLoginController extends BasicController {
     if (!userNameIsExist) {
       user.setNickname(user.getUsername());
       user.setPassword(MD5Utils.getMD5Str(user.getPassword()));
-      user.setFansCounts((long)0);
-      user.setLikeCounts((long)0);
-      user.setFollowCounts((long)0);
+      user.setFansCounts((long) 0);
+      user.setLikeCounts((long) 0);
+      user.setFollowCounts((long) 0);
+      user.setCollectCounts((long) 0);
       userService.saveUser(user);
     } else {
-//      return MyJSONResult.create(new CommonErr(EmBusinessError.OBJECT_IS_EXISTED), "failed");
       throw new BusinessException(EmBusinessError.OBJECT_IS_EXISTED);
     }
 

@@ -17,34 +17,56 @@
   </resultMap>
 
   <update id="addSumLikeCounts" parameterType="String">
-    update users set like_counts=like_counts+1 where id=#{userId}
+    update users
+    set like_counts=like_counts + 1
+    where id = #{userId}
   </update>
 
   <update id="reduceSumLikeCounts" parameterType="String">
-    update users set like_counts=like_counts-1 where id=#{userId}
+    update users
+    set like_counts=like_counts - 1
+    where id = #{userId}
   </update>
 
   <update id="addSumCollectCounts" parameterType="String">
-    update users set collect_counts=collect_counts+1 where id=#{userId}
+    update users
+    set collect_counts=collect_counts + 1
+    where id = #{userId}
   </update>
 
   <update id="reduceSumCollectCounts" parameterType="String">
-    update users set collect_counts=collect_counts-1 where id=#{userId}
+    update users
+    set collect_counts=collect_counts - 1
+    where id = #{userId}
   </update>
 
   <update id="addFansCounts" parameterType="String">
-    update users set fans_counts=fans_counts+1 where id=#{userId}
+    update users
+    set fans_counts=fans_counts + 1
+    where id = #{userId}
   </update>
 
   <update id="reduceFansCounts" parameterType="String">
-    update users set fans_counts=fans_counts-1 where id=#{userId}
+    update users
+    set fans_counts=fans_counts - 1
+    where id = #{userId}
   </update>
 
   <update id="addFollowCounts" parameterType="String">
-    update users set follow_counts=follow_counts+1 where id=#{userId}
+    update users
+    set follow_counts=follow_counts + 1
+    where id = #{userId}
   </update>
 
   <update id="reduceFollowCounts" parameterType="String">
-    update users set follow_counts=follow_counts-1 where id=#{userId}
+    update users
+    set follow_counts=follow_counts - 1
+    where id = #{userId}
   </update>
+
+  <select id="getFansNumber" parameterType="String" resultType="Integer">
+    select fans_counts
+    from users
+    where id = #{userId};
+  </select>
 </mapper>

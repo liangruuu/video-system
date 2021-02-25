@@ -37,7 +37,7 @@ public class Users {
   private Long likeCounts;
 
   @ApiModelProperty(hidden = true)
-  @Column(name = "like_counts")
+  @Column(name = "collect_counts")
   private Long collectCounts;
 
   /**

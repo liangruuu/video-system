@@ -1,15 +1,10 @@
 package cn.edu.zucc.controller;
 
-import cn.edu.zucc.mapper.UsersMapper;
 import cn.edu.zucc.pojo.Users;
-import cn.edu.zucc.pojo.UsersFans;
 import cn.edu.zucc.service.UserService;
 import cn.edu.zucc.utils.*;
-import cn.edu.zucc.vo.FollowerVO;
+import cn.edu.zucc.utils.em.EmBusinessError;
 import cn.edu.zucc.vo.UsersVO;
-import cn.edu.zucc.vo.VideosVO;
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -18,17 +13,12 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 
 @RestController
 @Api(value = "用户业务操作的接口", tags = {"用户业务操作的controller"})
@@ -151,5 +141,16 @@ public class UserController {
     PageResult followsList = userService.showFollowUsers(userId, page, pageSize);
 
     return MyJSONResult.create(followsList);
+  }
+
+  @ApiOperation(value = "获取关注人数", notes = "获取关注人数的接口")
+  @ApiImplicitParam(name = "userId", value = "用户id", required = true, dataType = "String", paramType = "query")
+  @GetMapping(value = "/getfansnumber")
+  public MyJSONResult getFansNumber(String userId) throws BusinessException {
+    if (StringUtils.isBlank(userId)) {
+      throw new BusinessException(EmBusinessError.PARAMS_ERROR);
+    }
+    int fansNumber = userService.getFansNumber(userId);
+    return MyJSONResult.create(fansNumber);
   }
 }

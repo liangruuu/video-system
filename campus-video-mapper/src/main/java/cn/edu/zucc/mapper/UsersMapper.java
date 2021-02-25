@@ -56,4 +56,11 @@ public interface UsersMapper extends MyMapper<Users> {
    * @param userId
    */
   public void reduceFollowCounts(@Param("userId") String userId);
+
+  /**
+   * 获取用户关注人数
+   * @param userId
+   * @return
+   */
+  public int getFansNumber(@Param("userId") String userId);
 }

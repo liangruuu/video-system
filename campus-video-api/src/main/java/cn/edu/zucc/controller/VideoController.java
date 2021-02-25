@@ -1,25 +1,31 @@
 package cn.edu.zucc.controller;
 
+import cn.edu.zucc.mapper.RecommendMapper;
 import cn.edu.zucc.pojo.Bgm;
 import cn.edu.zucc.pojo.Comments;
 import cn.edu.zucc.pojo.ReportVideos;
 import cn.edu.zucc.pojo.Videos;
+import cn.edu.zucc.req.ModifyReq;
+import cn.edu.zucc.req.VideoReq;
 import cn.edu.zucc.service.BgmService;
+import cn.edu.zucc.service.RecommendService;
 import cn.edu.zucc.service.UserService;
 import cn.edu.zucc.service.VideoService;
 import cn.edu.zucc.utils.*;
+import cn.edu.zucc.utils.em.EmBusinessError;
+import cn.edu.zucc.utils.em.EmVideoStatus;
 import cn.edu.zucc.vo.UserVideo;
+import cn.edu.zucc.vo.VideosVO;
 import io.swagger.annotations.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.support.PagedListHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.xml.stream.events.Comment;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
@@ -40,6 +46,8 @@ public class VideoController extends BasicController {
   private VideoService videoService;
   @Autowired
   private UserService userService;
+  @Autowired
+  private RecommendService recommendService;
 
   private List<Object> returnList = null;
 
@@ -55,7 +63,7 @@ public class VideoController extends BasicController {
   })
   // headers表示希望接口传过来的是文件数据
   @PostMapping(value = "/upload", headers = "content-type=multipart/form-data")
-  public MyJSONResult upload(String userId,
+  public MyJSONResult upload(String userId, Integer categoryId,
                              String bgmId, String videoName, double videoSeconds, int videoWidth, int videoHeight, String desc,
                              @ApiParam(value = "视频", required = true)
                                  MultipartFile file) throws Exception {
@@ -71,7 +79,9 @@ public class VideoController extends BasicController {
     try {
       if (file != null) {
         String fileName = file.getOriginalFilename();
-        String fileNamePrefix = fileName.split("\\.")[0];
+        int index = fileName.indexOf(".mp4");
+//        String fileNamePrefix = fileName.split("\\.")[0];
+        String fileNamePrefix = fileName.substring(0, index);
 
         if (StringUtils.isNotBlank(fileName)) {
           // 文件最终要上传的路径
@@ -123,6 +133,7 @@ public class VideoController extends BasicController {
     //保存视频信息到数据库
     Videos video = new Videos();
     video.setBgmId(bgmId);
+    video.setCategoryId(categoryId);
     video.setVideoName(videoName);
     video.setUserId(userId);
     video.setVideoDesc(desc);
@@ -137,7 +148,6 @@ public class VideoController extends BasicController {
 
     return MyJSONResult.create(new CommonSuccess("视频上传成功", videoId));
   }
-
 
   // 因为在手机端封面信息获取不到所以用FFMEPG截图生成视频封面
   @ApiOperation(value = "上传封面", notes = "上传封面的接口")
@@ -198,19 +208,50 @@ public class VideoController extends BasicController {
     return MyJSONResult.create(new CommonSuccess("更新视频封面成功", returnList));
   }
 
-
   @ApiOperation(value = "获取视频列表", notes = "获取视频列表的接口")
   @ApiImplicitParams({
       @ApiImplicitParam(name = "isSaveRecord", value = "是否保存热搜词(1表示要保存, 0表示不保存或者为空)", required = true, dataType = "boolean", paramType = "query"),
       @ApiImplicitParam(name = "page", value = "获取数据库分页之后第page页的视频列表数据", required = true, dataType = "Integer", paramType = "query")
   })
   @PostMapping(value = "/showvideolist")
-  public MyJSONResult showVideoList(@RequestBody Videos video, Integer isSaveRecord, Integer page) {
+  public MyJSONResult showVideoList(@RequestBody VideoReq video, Integer isSaveRecord, Integer page) {
     if (page == null) {
       page = 1;
     }
     PageResult pageResult = videoService.getVideoList(video, isSaveRecord, page, BasicController.PAGE_SIZE);
     return MyJSONResult.create(pageResult);
+  }
+
+  @ApiOperation(value = "使用ES获取视频列表", notes = "使用ES获取视频列表的接口")
+  @ApiImplicitParams({
+      @ApiImplicitParam(name = "isSaveRecord", value = "是否保存热搜词(1表示要保存, 0表示不保存或者为空)", required = true, dataType = "boolean", paramType = "query"),
+      @ApiImplicitParam(name = "page", value = "获取数据库分页之后第page页的视频列表数据", required = true, dataType = "Integer", paramType = "query")
+  })
+  @PostMapping(value = "/showvideolistes")
+  public MyJSONResult showVideoListES(@RequestBody VideoReq videoReq, Integer isSaveRecord, Integer page, Integer pageSize) {
+    if (page == null) {
+      page = 1;
+    }
+    if (pageSize == null) {
+      pageSize = BasicController.PAGE_SIZE;
+    }
+    PageResult pageResult = new PageResult();
+    try {
+      pageResult = videoService.getVideoListES(videoReq, isSaveRecord, page, pageSize);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    return MyJSONResult.create(pageResult);
+  }
+
+  @ApiOperation(value = "获取推荐视频列表", notes = "获取推荐视频列表的接口")
+  @ApiImplicitParams({
+      @ApiImplicitParam(name = "userId", value = "用户Id", required = true, dataType = "String", paramType = "query"),
+  })
+  @PostMapping(value = "/recommendlist")
+  public MyJSONResult showRecommendVideoList(String userId) {
+    List<VideosVO> result = recommendService.recall(userId);
+    return MyJSONResult.create(result, "获取推荐列表成功");
   }
 
   @ApiOperation(value = "获取热词列表", notes = "获取热词列表的接口")
@@ -328,7 +369,10 @@ public class VideoController extends BasicController {
 
   @ApiOperation(value = "发表评论", notes = "发表评论的接口")
   @PostMapping(value = "/savecomment")
-  public MyJSONResult saveComment(@RequestBody Comments comment) {
+  public MyJSONResult saveComment(@RequestBody Comments comment, String fatherCommentId, String toUserId) throws BusinessException {
+    comment.setFatherCommentId(fatherCommentId);
+    comment.setToUserId(toUserId);
+
     videoService.saveComment(comment);
     return MyJSONResult.create(new CommonSuccess("保存评论成功"));
   }
@@ -353,5 +397,82 @@ public class VideoController extends BasicController {
     PageResult list = videoService.getCommentList(videoId, page, pageSize);
 
     return MyJSONResult.create(list);
+  }
+
+  @ApiOperation(value = "新增或更新评分", notes = "新增或更新评分的接口")
+  @ApiImplicitParams({
+      @ApiImplicitParam(name = "userId", value = "用户Id", required = true, dataType = "String", paramType = "query"),
+      @ApiImplicitParam(name = "videoId", value = "视频Id", required = true, dataType = "String", paramType = "query"),
+      @ApiImplicitParam(name = "rating", value = "评分", required = true, dataType = "Integer", paramType = "query")
+  })
+  @GetMapping(value = "/rating")
+  public MyJSONResult rating(String userId, String videoId, Integer rating) throws BusinessException {
+    if (StringUtils.isBlank(userId) || StringUtils.isBlank(videoId) || rating == null) {
+      throw new BusinessException(EmBusinessError.PARAMS_ERROR);
+    }
+    if (videoService.saveOrUpdaterRating(userId, videoId, rating) > 0) {
+      return MyJSONResult.create(new CommonSuccess("插入或更新评分成功"));
+    } else {
+      return MyJSONResult.create("插入或更新评分失败");
+    }
+  }
+
+  @ApiOperation(value = "获取视频评分", notes = "获取视频评分的接口")
+  @ApiImplicitParams({
+      @ApiImplicitParam(name = "userId", value = "用户Id", required = true, dataType = "String", paramType = "query"),
+      @ApiImplicitParam(name = "videoId", value = "视频Id", required = true, dataType = "String", paramType = "query"),
+  })
+  @GetMapping(value = "getratingvalue")
+  public MyJSONResult getRateValue(String userId, String videoId) {
+    if (StringUtils.isBlank(userId)) {
+      userId = "-1";
+    }
+    int rate = videoService.getRateValue(userId, videoId);
+    return MyJSONResult.create(new CommonSuccess("获取评分成功", rate));
+  }
+
+  @ApiOperation(value = "获取视频分类列表", notes = "获取视频分类列表的接口")
+  @GetMapping(value = "/categorylist")
+  public MyJSONResult getCategoryList() {
+    return MyJSONResult.create(videoService.getCategoryList(), "获取视频分类列表成功");
+  }
+
+
+  @ApiOperation(value = "改变视频标签列表", notes = "改变视频标签列表的接口")
+  @ApiImplicitParams({
+      @ApiImplicitParam(name = "tagListStr", value = "标签字符串", required = true, dataType = "String", paramType = "query"),
+      @ApiImplicitParam(name = "videoId", value = "视频Id", required = true, dataType = "String", paramType = "query"),
+  })
+  @GetMapping(value = "/changetag")
+  public MyJSONResult changeTag(String videoId, String tagListStr) {
+    if (videoService.changeTag(videoId, tagListStr) > 0) {
+      return MyJSONResult.create(new CommonSuccess("改变标签成功", tagListStr));
+    }
+    return MyJSONResult.create(new CommonSuccess("改变标签失败"));
+  }
+
+  @ApiOperation(value = "删除视频，以更新视频状态为3作为删除操作", notes = "删除视频的接口")
+  @ApiImplicitParam(name = "videoId", value = "视频Id", required = true, dataType = "String", paramType = "query")
+  @GetMapping(value = "/deletevideo")
+  public MyJSONResult deleteVideo(String videoId) throws BusinessException {
+    if (StringUtils.isBlank(videoId)) {
+      throw new BusinessException(EmBusinessError.PARAMS_ERROR);
+    }
+    if (videoService.deleteVideo(videoId) > 0) {
+      return MyJSONResult.create(new CommonSuccess("删除视频成功", videoId));
+    } else {
+      return MyJSONResult.create(new CommonErr(EmBusinessError.NO_OBJECT_FOUND));
+    }
+  }
+
+  @ApiOperation(value = "更新视频基本信息", notes = "更新视频基本信息的接口")
+  @PostMapping(value = "/updatevideo")
+  public MyJSONResult updateVideo(@RequestBody ModifyReq modifyReq) {
+    Videos videos = videoService.updateVideo(modifyReq);
+    if (videos != null) {
+      return MyJSONResult.create(new CommonSuccess("更新视频成功", videos));
+    } else {
+      return MyJSONResult.create(new CommonErr(EmBusinessError.NO_OBJECT_FOUND));
+    }
   }
 }
